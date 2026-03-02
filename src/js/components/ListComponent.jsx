@@ -69,8 +69,11 @@ function ListComponent() {
                         <ul className='lista-tareas'>
 
                             {toDo.map((toDo) => (
-                                <li key={toDo.id} className="lista-tareas-item">{toDo.label}
-                                    <button onClick={() => eliminarTarea(toDo.id)} className='boton-eliminar btn btn-outline-secondary px-1 py-1 m-1' style={{ fontSize: '0.7rem', lineHeight: '1' }}>x</button>
+                                <li key={toDo.id} className="lista-tareas-item">
+                                   <div className='d-flex justify-content-between'>
+                                    {toDo.label}
+                                    <button onClick={() => eliminarTarea(toDo.id)} className='boton-eliminar btn btn-outline-danger px-1 py-1 m-1' style={{ fontSize: '0.7rem', lineHeight: '1' }}>eliminar</button>
+                                    </div> 
                                 </li>
                             ))}
                         </ul>
