@@ -1,11 +1,30 @@
 import { useState, useEffect } from 'react';
 import { deleteApi, getApi, postApi } from "../../api/api.js"
-function ListComponent() {
+import FormComponent from './FormComponent.jsx';
+import TodosPending from './TodosPending.jsx';
 
-    const [textoNuevo, setTextoNuevo] = useState("")
+
+function ListComponent() {
     const [toDo, setToDo] = useState([]);
+    const userName = "BelkisAle"
+
+
+    function createUser() {
+        postApi(`https://playground.4geeks.com/todo/users/${userName}`)
+    }
+
+    function getUser() {
+        getApi(`https://playground.4geeks.com/todo/users/${userName}`)
+            .then((user) => {
+                if (user.name) {
+                    setToDo(user.todos)
+
+                } else { createUser() }
+            })
+    }
+
     function getTodos() {
-        getApi('https://playground.4geeks.com/todo/users/BelkisAle')
+        getApi(`https://playground.4geeks.com/todo/users/${userName}`)
             .then((toDo) => {
                 setToDo(toDo.todos)
             })
@@ -13,40 +32,14 @@ function ListComponent() {
     }
 
     useEffect(() => {
-        getTodos();
+        getUser();
     }, []);
 
-    const agregarTareas = () => {
-        if (textoNuevo.trim() === "") {
-            alert("No puedes agregar una tarea vacia")
-            return
-        }
-        postApi('https://playground.4geeks.com/todo/todos/BelkisAle', {
-
-            "label": textoNuevo,
-            "is_done": false
-        })
-            .then(() => getTodos())
-            .catch((error) => console.log(error));
-        setTextoNuevo("");
-    }
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        agregarTareas();
-    }
     const eliminarTarea = (id) => {
         deleteApi(`https://playground.4geeks.com/todo/todos/${id}`).then(() => {
             getTodos();
         })
     }
-
-    const borrarTodo = () => {
-        if(window.confirm("Estas seguro que deseas borrar todas tus tareas?")) {
-        toDo.forEach((element) => eliminarTarea(element.id))}
-    }
-
-
     return (
         <div>
             <div className='row p-5'>
@@ -54,31 +47,20 @@ function ListComponent() {
                     <div className="card-header text-center">
                         TAREAS PENDIENTES
                     </div>
-                    <form onSubmit={handleSubmit} className="card-body d-flex justify-content=center align-item-center gap-4">
-                        <blockquote className="blockquote">
-                            <label htmlFor="list"></label>
-                            <input onChange={(e) => setTextoNuevo(e.target.value)}
-                                type="text"
-                                value={textoNuevo}
-                                name="listComponent"
-                                placeholder="Agrega una tarea" />
-                        </blockquote>
-                        <button onClick={agregarTareas} type="button" className="btn btn-danger mb-4">agregar</button>
-                    </form>
+                    <FormComponent nombreDeUsuario={userName} getTodosProps={getTodos} />
                     <div className='lista-de-tareas'>
                         <ul className='lista-tareas'>
 
                             {toDo.map((toDo) => (
                                 <li key={toDo.id} className="lista-tareas-item">
-                                   <div className='d-flex justify-content-between'>
-                                    {toDo.label}
-                                    <button onClick={() => eliminarTarea(toDo.id)} className='boton-eliminar btn btn-outline-danger px-1 py-1 m-1' style={{ fontSize: '0.7rem', lineHeight: '1' }}>eliminar</button>
-                                    </div> 
+                                    <div className='d-flex justify-content-between'>
+                                        {toDo.label}
+                                        <button onClick={() => eliminarTarea(toDo.id)} className='boton-eliminar btn btn-outline-danger px-1 py-1 m-1' style={{ fontSize: '0.7rem', lineHeight: '1' }}>eliminar</button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
-                        <p>{toDo.length === 0 ? "No tienes tareas pendientes" : `Tienes ${toDo.length} tareas pendientes`}</p>
-                        <button onClick={() => borrarTodo()} className='btn btn-danger mb-4'>Borrar todo</button>
+                        <TodosPending tareitas={toDo} eliminarTarea={eliminarTarea}/>
                     </div>
                 </div>
             </div>
